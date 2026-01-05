@@ -102,6 +102,33 @@ jobs:
         sarif_file: trivy-results.sarif
 
 
+    # ----------------------------------------------------
+    # 10. Docker Container Basic Testing
+    # ----------------------------------------------------
+    - name: Run container and test
+      run: |
+        docker run -d -p 8080:8080 --name test-app ${{ secrets.DOCKERHUB_USERNAME }}/test:latest
+        sleep 10
+        curl -f http://localhost:8080 || exit 1
+        docker logs test-app
+        docker stop test-app
+        docker rm test-app
+
+    # ----------------------------------------------------
+    # 11. Login to DockerHub
+    # ----------------------------------------------------
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    # ----------------------------------------------------
+    # 12. Push Docker Image
+    # ----------------------------------------------------
+    - name: Push Image to DockerHub
+      run: |
+        docker push vilasvarghese/test:latest
 
 
 
